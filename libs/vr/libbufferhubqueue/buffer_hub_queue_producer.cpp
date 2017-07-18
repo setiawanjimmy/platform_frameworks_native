@@ -131,7 +131,7 @@ status_t BufferHubQueueProducer::setAsyncMode(bool async) {
 
 status_t BufferHubQueueProducer::dequeueBuffer(
     int* out_slot, sp<Fence>* out_fence, uint32_t width, uint32_t height,
-    PixelFormat format, uint32_t usage,
+    PixelFormat format, uint32_t usage, uint64_t* /*outBufferAge*/,
     FrameEventHistoryDelta* /* out_timestamps */) {
   ALOGD_IF(TRACE, "dequeueBuffer: w=%u, h=%u, format=%d, usage=%u", width,
            height, format, usage);

@@ -342,8 +342,9 @@ status_t VirtualDisplaySurface::dequeueBuffer(Source source,
         PixelFormat format, uint32_t usage, int* sslot, sp<Fence>* fence) {
     LOG_FATAL_IF(mDisplayId < 0, "mDisplayId=%d but should not be < 0.", mDisplayId);
 
-    status_t result = mSource[source]->dequeueBuffer(sslot, fence,
-            mSinkBufferWidth, mSinkBufferHeight, format, usage, nullptr);
+    status_t result =
+            mSource[source]->dequeueBuffer(sslot, fence, mSinkBufferWidth, mSinkBufferHeight,
+                                           format, usage, nullptr, nullptr);
     if (result < 0)
         return result;
     int pslot = mapSource2ProducerSlot(source, *sslot);
@@ -381,12 +382,13 @@ status_t VirtualDisplaySurface::dequeueBuffer(Source source,
     return result;
 }
 
-status_t VirtualDisplaySurface::dequeueBuffer(int* pslot, sp<Fence>* fence,
-        uint32_t w, uint32_t h, PixelFormat format, uint32_t usage,
-        FrameEventHistoryDelta* outTimestamps) {
+status_t VirtualDisplaySurface::dequeueBuffer(int* pslot, sp<Fence>* fence, uint32_t w, uint32_t h,
+                                              PixelFormat format, uint32_t usage,
+                                              uint64_t* outBufferAge,
+                                              FrameEventHistoryDelta* outTimestamps) {
     if (mDisplayId < 0) {
-        return mSource[SOURCE_SINK]->dequeueBuffer(
-                pslot, fence, w, h, format, usage, outTimestamps);
+        return mSource[SOURCE_SINK]->dequeueBuffer(pslot, fence, w, h, format, usage, outBufferAge,
+                                                   outTimestamps);
     }
 
     VDS_LOGW_IF(mDbgState != DBG_STATE_PREPARED,
@@ -445,6 +447,9 @@ status_t VirtualDisplaySurface::dequeueBuffer(int* pslot, sp<Fence>* fence,
         if (result >= 0) {
             *pslot = mapSource2ProducerSlot(source, sslot);
         }
+    }
+    if (outBufferAge) {
+        *outBufferAge = 0;
     }
     return result;
 }
